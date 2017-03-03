@@ -61,8 +61,8 @@ When you wish to launch ExtraActivity with these extras, you do something like t
 public class MainActivity extends AppCompatActivity {
     public void launchExtraActivity() {
         Butterfly.getExtraActivity$$Helper()
-                .withname(stringExtra.getText().toString())
-                .withid(Integer.parseInt(intExtra.getText().toString()))
+                .withname("ENIVEL RETEP") // Notice the setter name is associated with alias given in @BExtra
+                .withid(42069)
                 .start(this);
     }
 }
@@ -71,6 +71,8 @@ public class MainActivity extends AppCompatActivity {
 Simply get the corresponding helper from Butterfly, 
 
 This project is still at 0.1.0 version. More features will be added later on. Such as shared element transitions. :D
+
+Also I didn't write enough tests yet. :(
 
 To use Butterfly, you need to add
 `butterfly-annotations`, `butterfly-api`, `butterfly-compiler` as modules to your app. And then in your app level gradle, put:
