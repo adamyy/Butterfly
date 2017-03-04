@@ -1,13 +1,9 @@
-package com.yifan.butterfly.router;
+package com.yifan.butterfly;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-
-/**
- * Created by yifan on 17/2/26.
- */
 
 public abstract class ActivityHelper {
 

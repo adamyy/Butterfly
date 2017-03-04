@@ -1,18 +1,16 @@
-package com.yifan.butterfly.processors;
+package com.yifan.butterfly;
 
 import com.google.auto.service.AutoService;
 import com.squareup.javapoet.ClassName;
-import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
-import com.yifan.butterfly.BActivity;
-import com.yifan.butterfly.BExtra;
-import com.yifan.butterfly.helper.ButterflyModel;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -36,9 +34,15 @@ import javax.lang.model.util.Types;
 import javax.tools.Diagnostic;
 
 import static com.yifan.butterfly.C.ACTIVITY;
+import static com.yifan.butterfly.C.ACTIVITY_HELPER;
+import static com.yifan.butterfly.C.BINDER_CLASS_SUFFIX;
+import static com.yifan.butterfly.C.BUTTERFLY;
+import static com.yifan.butterfly.C.BINDER;
 import static com.yifan.butterfly.C.COMPONENT_NAME;
 import static com.yifan.butterfly.C.CONTEXT;
-import static com.yifan.butterfly.C.INTENT;
+import static com.yifan.butterfly.C.HELPER_CLASS_SUFFIX;
+import static com.yifan.butterfly.C.HELPER_PACKAGE_NAME;
+import static com.yifan.butterfly.C.BUTTERFLY_PACKAGE_NAME;
 import static javax.lang.model.element.ElementKind.CLASS;
 import static javax.lang.model.element.Modifier.FINAL;
 import static javax.lang.model.element.Modifier.PRIVATE;
@@ -46,13 +50,7 @@ import static javax.lang.model.element.Modifier.PUBLIC;
 import static javax.lang.model.element.Modifier.STATIC;
 
 @AutoService(Processor.class)
-public class ButterflyProcessor extends AbstractProcessor {
-
-    private static final ClassName BUTTERFLY = ClassName.get("com.yifan.butterfly", "Butterfly");
-    private static final String PACKAGE_NAME = "com.yifan.butterfly";
-    private static final String HELPER_PACKAGE_NAME = PACKAGE_NAME + ".helper";
-    private static final String HELPER_CLASS_SUFFIX = "$$Helper";
-    private static final ClassName ACTIVITY_HELPER = ClassName.get("com.yifan.butterfly.router", "ActivityHelper");
+public final class ButterflyProcessor extends AbstractProcessor {
 
     private Elements _elementUtils;
     private Types _typeUtils;
@@ -98,53 +96,69 @@ public class ButterflyProcessor extends AbstractProcessor {
                 .addJavadoc("This class is generated and should not be modified \n")
                 .addModifiers(PUBLIC, FINAL);
 
-        // emit activity helper class
+        // Assemble Butterfly models
+        List<ButterflyModel> activityModels = new ArrayList<>();
         for (Element activity : roundEnv.getElementsAnnotatedWith(BActivity.class)) {
+            if (!isValidActivity(activity)) return false;
 
-            String activityAlias = !activity.getAnnotation(BActivity.class).alias().isEmpty() ?
-                    activity.getAnnotation(BActivity.class).alias() : activity.getSimpleName().toString();
+            BActivity annotation = activity.getAnnotation(BActivity.class);
+            String activityId = activity.getSimpleName().toString();
+            String activityAlias = !annotation.alias().isEmpty() ? annotation.alias() : activityId;
 
-            ClassName helperName = ClassName.get(HELPER_PACKAGE_NAME, activityAlias + HELPER_CLASS_SUFFIX);
-            ClassName activityClassName = (ClassName) ClassName.get(activity.asType());
-
-            TypeSpec.Builder helper = TypeSpec.classBuilder(helperName)
-                    .superclass(ACTIVITY_HELPER)
-                    .addModifiers(PUBLIC, FINAL)
-                    .addJavadoc("This class is generated and should not be modified\n");
-
-            // Build the activity model
             ButterflyModel model = new ButterflyModel();
-            model._Actvity = (TypeElement) activity;
-            model._ActivityId = activityAlias;
+            model._Activity = (TypeElement) activity;
+            model._ActivityAlias = activityAlias;
             List<? extends Element> enclosedElements = activity.getEnclosedElements();
             for (Element element : enclosedElements) {
                 BExtra extra = element.getAnnotation(BExtra.class);
                 if (extra != null) {
                     if (!isValidExtra(element)) return false;
-
-                    String extraId = element.getSimpleName().toString();
-                    String extraAlias = extra.alias().isEmpty() ? extraId : extra.alias();
-                    model._ExtraElements.add((VariableElement) element);
-                    model._ExtraIds.add(extraAlias);
-
-                    TypeName extraType = TypeName.get(element.asType());
-
-                    FieldSpec.Builder extraField = FieldSpec.builder(extraType, extraId, PRIVATE);
-                    helper.addField(extraField.build());
-
-                    MethodSpec.Builder withExtra = MethodSpec.methodBuilder("with" + extraAlias)
-                            .returns(helperName)
-                            .addModifiers(PUBLIC)
-                            .addJavadoc("Set the " + extraAlias + " extra")
-                            .addParameter(extraType, extraAlias)
-                            .addStatement("_intent.putExtra(\"$L\", $L)", extraId, extraAlias)
-                            .addStatement("this.$L = $L", extraId, extraAlias)
-                            .addStatement("return this");
-                    helper.addMethod(withExtra.build());
+                    String extraAlias = extra.alias().isEmpty() ? element.getSimpleName().toString() : extra.alias();
+                    model._ExtraElement.add((VariableElement) element);
+                    model._ExtraAlias.add(extraAlias);
                 }
             }
 
-            // emit helper.start method
+            activityModels.add(model);
+        }
+
+        // generate helper
+        for (ButterflyModel model : activityModels) {
+            TypeElement activity = model._Activity;
+            String activityAlias = model._ActivityAlias;
+            ClassName activityClassName = (ClassName) ClassName.get(activity.asType());
+            ClassName helperName = ClassName.get(HELPER_PACKAGE_NAME, activityAlias + HELPER_CLASS_SUFFIX);
+            String packageName = _elementUtils.getPackageOf(activity).getQualifiedName().toString();
+
+            // Helper class definition
+            TypeSpec.Builder helper = TypeSpec.classBuilder(helperName)
+                    .superclass(ACTIVITY_HELPER)
+                    .addModifiers(PUBLIC, FINAL)
+                    .addJavadoc("Generated by Butterfly, do not modified!\n\n");
+
+            // generate with<extra> methods
+            for (int i = 0; i < model._ExtraElement.size(); i++) {
+                VariableElement extra = model._ExtraElement.get(i);
+                String extraAlias = model._ExtraAlias.get(i);
+                String extraId = extra.getSimpleName().toString();
+                TypeName extraType = TypeName.get(extra.asType());
+
+                MethodSpec.Builder withExtra = MethodSpec.methodBuilder("with" + extraAlias)
+                        .returns(helperName)
+                        .addModifiers(PUBLIC)
+                        .addJavadoc("Set the " + extraAlias + " extra")
+                        .addParameter(extraType, extraAlias)
+                        .addStatement("_intent.putExtra(\"$L\", $L)", extraId, extraAlias)
+//                        .addStatement("this.$L = $L", extraId, extraAlias)
+                        .addStatement("return this");
+                helper.addMethod(withExtra.build());
+
+                // no need for saving extra as a field honestly
+                // FieldSpec.Builder extraField = FieldSpec.builder(extraType, extraId, PRIVATE);
+                // helper.addField(extraField.build());
+            }
+
+            // generate helper.start methods
             MethodSpec.Builder start_context = MethodSpec.methodBuilder("start")
                     .addAnnotation(Override.class)
                     .addModifiers(PUBLIC)
@@ -175,8 +189,8 @@ public class ButterflyProcessor extends AbstractProcessor {
             helper.addMethod(start_context.build());
             helper.addMethod(start_activity.build());
 
-            helper.addJavadoc("ButterflyModel: \n")
-                    .addJavadoc(model.toString());
+            // for debugging
+            helper.addJavadoc("ButterflyModel: \n").addJavadoc(model.toString());
 
             try {
                 JavaFile.builder(HELPER_PACKAGE_NAME, helper.build())
@@ -186,19 +200,40 @@ public class ButterflyProcessor extends AbstractProcessor {
                 e.printStackTrace();
             }
 
-            // emit butterfly.getHelper method
+            // generate getHelper method for Butterfly class
             MethodSpec.Builder getHelper = MethodSpec.methodBuilder("get" + helperName.simpleName())
                     .addModifiers(PUBLIC, STATIC)
                     .returns(helperName)
-                    .addStatement("return new $L()", helperName);
+                    .addStatement("return new $T()", helperName);
+            butterfly.addMethod(getHelper.build());
+        }
 
-            // emit butterfly.bind method
+        // Generate extra binder
+        for (ButterflyModel model : activityModels) {
+            TypeElement activity = model._Activity;
+            ClassName activityClassName = (ClassName) ClassName.get(activity.asType());
+            String packageName = _elementUtils.getPackageOf(activity).getQualifiedName().toString();
+            // Binder wants to be within the same package as the activity, such that protected / package-private members can be accessed
+            ClassName binderName = ClassName.get(packageName, activity.getSimpleName() + BINDER_CLASS_SUFFIX);
+
+            // Binder class definition
+            TypeSpec.Builder binder = TypeSpec.classBuilder(binderName)
+                    .superclass(ParameterizedTypeName.get(BINDER, activityClassName))
+                    .addModifiers(PUBLIC, FINAL)
+                    .addJavadoc("Generated by Butterfly, do not modified!\n");
+
+            MethodSpec.Builder constructor = MethodSpec.constructorBuilder()
+                    .addModifiers(PUBLIC)
+                    .addParameter(activityClassName, "target")
+                    .addStatement("super(target)");
+
             MethodSpec.Builder bind = MethodSpec.methodBuilder("bind")
-                    .addModifiers(PUBLIC, STATIC)
+                    .addAnnotation(Override.class)
+                    .addModifiers(PUBLIC)
                     .addParameter(TypeName.get(activity.asType()), "activity")
-                    .addStatement("$T intent = activity.getIntent()", INTENT);
+                    .addStatement("super.bind(activity)");
 
-            for (VariableElement element : model._ExtraElements) {
+            for (VariableElement element : model._ExtraElement) {
                 String identifier = element.getSimpleName().toString();
                 TypeMirror typeMirror = element.asType();
                 TypeKind typeKind = typeMirror.getKind();
@@ -222,41 +257,56 @@ public class ButterflyProcessor extends AbstractProcessor {
                             defaultVal = "0";
                             break;
                     }
-                    bind.addStatement("activity.$L = intent.$L(\"$L\", $L)",
+                    bind.addStatement("activity.$L = _intent.$L(\"$L\", $L)",
                             identifier, parsePrimitiveTypeToMethodName(typeMirror),
                             identifier, defaultVal);
-                } else if (typeKind == TypeKind.ARRAY){
+                } else if (typeKind == TypeKind.ARRAY) {
                     TypeMirror componentType = ((ArrayType) typeMirror).getComponentType();
                     if (componentType.getKind().isPrimitive()) {
-                        bind.addStatement("activity.$L = intent.$L(\"$L\")",
+                        bind.addStatement("activity.$L = _intent.$L(\"$L\")",
                                 identifier, parsePrimitiveTypeToMethodName(typeMirror),
                                 identifier);
                     } else if (isTypeString(componentType)) {
-                        bind.addStatement("activity.$L = (String[])intent.getStringArrayExtra(\"$L\")",
+                        bind.addStatement("activity.$L = (String[])_intent.getStringArrayExtra(\"$L\")",
                                 identifier, identifier);
                     } else if (isTypeParcelable(componentType)) {
-                        bind.addStatement("activity.$L = ($L[])intent.getParcelableArrayExtra(\"$L\")",
+                        bind.addStatement("activity.$L = ($L[])_intent.getParcelableArrayExtra(\"$L\")",
                                 identifier, componentType, identifier);
                     }
                 } else if (isTypeString(typeMirror)) {
-                    bind.addStatement("activity.$L = intent.getStringExtra(\"$L\")",
+                    bind.addStatement("activity.$L = _intent.getStringExtra(\"$L\")",
                             identifier, identifier);
-                } else if (isTypeSerializable(typeMirror)){
-                    bind.addStatement("activity.$L = ($L)intent.getSerializableExtra(\"$L\")",
+                } else if (isTypeSerializable(typeMirror)) {
+                    bind.addStatement("activity.$L = ($L)_intent.getSerializableExtra(\"$L\")",
                             identifier, typeMirror, identifier);
                 } else if (isTypeParcelable(typeMirror)) {
-                    bind.addStatement("activity.$L = intent.getParcelableExtra(\"$L\")",
+                    bind.addStatement("activity.$L = _intent.getParcelableExtra(\"$L\")",
                             identifier, identifier);
                 }
-
             }
 
-            butterfly.addMethod(getHelper.build());
-            butterfly.addMethod(bind.build());
+            binder.addMethod(constructor.build());
+            binder.addMethod(bind.build());
+
+            try {
+                JavaFile.builder(packageName, binder.build())
+                        .build()
+                        .writeTo(_filer);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            // generate bind method for Butterfly class
+            MethodSpec.Builder getBinder = MethodSpec.methodBuilder("bind")
+                    .addModifiers(PUBLIC, STATIC)
+                    .addParameter(activityClassName, "target", FINAL)
+                    .returns(binderName)
+                    .addStatement("return new $T(target)", binderName);
+            butterfly.addMethod(getBinder.build());
         }
 
         try {
-            JavaFile.builder(PACKAGE_NAME, butterfly.build())
+            JavaFile.builder(BUTTERFLY_PACKAGE_NAME, butterfly.build())
                     .build()
                     .writeTo(_filer);
         } catch (IOException e) {
@@ -270,7 +320,7 @@ public class ButterflyProcessor extends AbstractProcessor {
      * See if the extra type is valid and can be put on a bundle<br>
      * Stuff that can be put in bundle:
      * <ul>
-     * <li>Binder</li>
+     * <li>BINDER</li>
      * <li>Bundle</li>
      * <li>Byte, ByteArray</li>
      * <li>Char, CharArray</li>
@@ -339,6 +389,17 @@ public class ButterflyProcessor extends AbstractProcessor {
         return valid;
     }
 
+    private boolean isValidActivity(Element activity) {
+        if (isSubtypeOfType(activity.asType(), _elementUtils.getTypeElement(ACTIVITY.reflectionName()).asType())) {
+            return true;
+        } else {
+            TypeElement enclosingElement = (TypeElement) activity.getEnclosingElement();
+            error(activity, "@%s annotated element %s must be subtypes of Activity. (%s.%s)",
+                    BActivity.class.getSimpleName(), activity.getSimpleName(), enclosingElement.getQualifiedName(), activity.getSimpleName());
+            return false;
+        }
+    }
+
     private boolean isTypeParcelable(TypeMirror type) {
         return implementsInterface(type, _elementUtils.getTypeElement("android.os.Parcelable").asType());
     }
@@ -349,6 +410,14 @@ public class ButterflyProcessor extends AbstractProcessor {
 
     private boolean isTypeString(TypeMirror type) {
         return implementsInterface(type, _elementUtils.getTypeElement("java.lang.String").asType());
+    }
+
+    private boolean isSubtypeOfType(TypeMirror subType, TypeMirror type) {
+        return _typeUtils.isSubtype(subType, type);
+    }
+
+    private boolean isTypeEqual(TypeMirror thisType, TypeElement thatType) {
+        return _typeUtils.isSameType(thisType, thisType);
     }
 
     private boolean implementsInterface(TypeMirror myType, TypeMirror desiredInterface) {

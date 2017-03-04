@@ -6,7 +6,16 @@ import com.squareup.javapoet.ClassName;
  * Created by yifan on 17/3/2.
  */
 
-public class C {
+final class C {
+
+    public static final String BUTTERFLY_PACKAGE_NAME = "com.yifan.butterfly";
+    public static final String HELPER_PACKAGE_NAME = BUTTERFLY_PACKAGE_NAME + ".helper";
+    public static final String BINDER_CLASS_SUFFIX = "$$Binder";
+    public static final String HELPER_CLASS_SUFFIX = "$$Helper";
+    public static final ClassName BUTTERFLY = ClassName.get("com.yifan.butterfly", "Butterfly");
+
+    public static final ClassName ACTIVITY_HELPER = ClassName.get("com.yifan.butterfly", "ActivityHelper");
+    public static final ClassName BINDER = ClassName.get("com.yifan.butterfly", "Binder");
 
     public static final ClassName CONTEXT = ClassName.get("android.content", "Context");
     public static final ClassName ACTIVITY = ClassName.get("android.app", "Activity");

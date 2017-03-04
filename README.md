@@ -11,7 +11,7 @@ In Android, let's say you want to start a new `Activity`, maybe pass a few extra
 
 You will probably write some code like this:
 
-```
+```java
 Intent intent = new Intent(this, SomeOtherActivity.class);
 intent.putExtra("someIntExtra", 1);
 intent.putExtra("someStringExtra", "hello world");
@@ -20,7 +20,7 @@ startActivity(intent);
 
 Then in the `onCreate()` of the started Activity, to retrieve the extras:
 
-```
+```java
 int i = getIntExtra("someIntExtra", 0);
 String s = getStringExtra("someSrtingExtra");
 ```
@@ -34,7 +34,7 @@ Sample usage:
 First annotate the `Activity` class with `@BActivity`, also annotate the 
 extra fields you want Butterfly to bind with `@BExtra`. 
 
-```
+```java
 @BActivity
 public class ExtraActivity extends AppCompatActivity {
 
@@ -57,7 +57,7 @@ Then these fields annotated with `@BExtra` with be injected after you call `Butt
 
 When you wish to launch ExtraActivity with these extras, you do something like this:
 
-```
+```java
 public class MainActivity extends AppCompatActivity {
     public void launchExtraActivity() {
         Butterfly.getExtraActivity$$Helper()
