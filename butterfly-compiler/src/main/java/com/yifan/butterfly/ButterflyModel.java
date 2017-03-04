@@ -1,41 +1,40 @@
-package com.yifan.butterfly.helper;
+package com.yifan.butterfly;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 
-public class ButterflyModel {
+final class ButterflyModel {
 
     /**
      * Elements annotated with BActivity
      */
-    public TypeElement _Actvity;
-    public String _ActivityId;
+    public TypeElement _Activity;
+    public String _ActivityAlias;
 
     /**
      * Elements annotated with BExtras
      */
-    public final List<VariableElement> _ExtraElements;
-    public final List<String> _ExtraIds;
+    public final ArrayList<VariableElement> _ExtraElement;
+    public final ArrayList<String> _ExtraAlias;
 
     public ButterflyModel() {
-        _ExtraElements = new ArrayList<>();
-        _ExtraIds = new ArrayList<>();
+        _ExtraElement = new ArrayList<>();
+        _ExtraAlias = new ArrayList<>();
     }
 
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
         builder.append("_Activity: ")
-                .append(_Actvity.toString())
-                .append("\n_ActivityId: ")
-                .append(_ActivityId)
+                .append(_Activity.toString())
+                .append("\n_ActivityAlias: ")
+                .append(_ActivityAlias)
                 .append("\n");
 
         builder.append("\nExtraElements: \n");
-        for (VariableElement extra: _ExtraElements) {
+        for (VariableElement extra: _ExtraElement) {
             builder.append(extra.getSimpleName())
                     .append(": ")
                     .append(extra.asType().toString())
@@ -43,7 +42,7 @@ public class ButterflyModel {
         }
 
         builder.append("\nExtraIds: \n");
-        for (String extraId: _ExtraIds) {
+        for (String extraId: _ExtraAlias) {
             builder.append(extraId)
                     .append("\n");
         }

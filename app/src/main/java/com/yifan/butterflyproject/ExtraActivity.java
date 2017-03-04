@@ -23,57 +23,57 @@ public class ExtraActivity extends AppCompatActivity {
     private static final String TAG = ExtraActivity.class.getSimpleName();
 
     @BExtra
-    public byte _byteExtra;
+    byte _byteExtra;
     @BExtra
-    public byte[] _byteArrayExtra;
+    byte[] _byteArrayExtra;
 
     @BExtra
-    public boolean _booleanExtra;
+    boolean _booleanExtra;
     @BExtra
-    public boolean[] _booleanArrayExtra;
+    boolean[] _booleanArrayExtra;
 
     @BExtra
-    public char _charExtra;
+    char _charExtra;
     @BExtra
-    public char[] _charArrayExtra;
+    char[] _charArrayExtra;
 
     @BExtra
-    public short _shortExtra;
+    short _shortExtra;
     @BExtra
-    public short[] _shortArrayExtra;
+    short[] _shortArrayExtra;
 
     @BExtra
-    public int _intExtra;
+    int _intExtra;
     @BExtra
-    public int[] _intArrayExtra;
+    int[] _intArrayExtra;
 
     @BExtra
-    public float _floatExtra;
+    float _floatExtra;
     @BExtra
-    public float[] _floatArrayExtra;
+    float[] _floatArrayExtra;
 
     @BExtra
-    public double _doubleExtra;
+    double _doubleExtra;
     @BExtra
-    public double[] _doubleArrayExtra;
+    double[] _doubleArrayExtra;
 
     @BExtra
-    public long _longExtra;
+    long _longExtra;
     @BExtra
-    public long[] _longArrayExtra;
+    long[] _longArrayExtra;
 
     @BExtra
-    public String _stringExtra;
+    String _stringExtra;
     @BExtra
-    public String[] _stringArrayExtra;
+    String[] _stringArrayExtra;
 
     @BExtra
-    public SerializableObject _serializableExtra;
+    SerializableObject _serializableExtra;
 
     @BExtra
-    public ParcelableObject _parcelableExtra;
+    ParcelableObject _parcelableExtra;
     @BExtra
-    public ParcelableObject[] _parcelableArrayExtra;
+    ParcelableObject[] _parcelableArrayExtra;
 
     @BindView(R.id.string_extra)
     TextView stringText;
