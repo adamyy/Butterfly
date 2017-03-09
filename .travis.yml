@@ -1,4 +1,9 @@
 language: android
+jdk:
+  - oraclejdk8
+
+sudo: true
+
 android:
   components:
     # Uncomment the lines below if you want to
@@ -13,8 +18,8 @@ android:
     - android-25
 
     # Additional components
+    - extra-android-support
     - extra-android-m2repository
 
-    # Specify at least one system image,
-    # if you need to run emulator(s) during your tests
-    - sys-img-armeabi-v7a-android-23
+script:
+  ./gradlew clean build
