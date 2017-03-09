@@ -29,7 +29,7 @@ Which looks kinda tedious. Also you don't really need your brain to write these 
 
 The purpose of Butterfly (I'm a big fan of [Butterknife](https://github.com/JakeWharton/butterknife), don't judge my naming skills) is to make your life easier in this process.
 
-Sample usage:
+###Sample usage
 
 First annotate the `Activity` class with `@BActivity`, also annotate the 
 extra fields you want Butterfly to bind with `@BExtra`. 
