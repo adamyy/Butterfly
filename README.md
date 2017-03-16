@@ -39,10 +39,10 @@ extra fields you want Butterfly to bind with `@BExtra`.
 public class ExtraActivity extends AppCompatActivity {
 
 	@BExtra(alias = "id")
-    public int _intExtra;
+    int _intExtra;
     
 	@BExtra(alias = "name")
-    public String _stringExtra;
+    String _stringExtra;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,7 +68,14 @@ public class MainActivity extends AppCompatActivity {
 }
 ```
 
-Simply get the corresponding helper from Butterfly, 
+Simply get the corresponding activity helper from Butterfly, set the extra you want to pass using "with<extraName>" methods,
+do "start" to start the activity using extras you set previously.
+
+Currently supported extra types are:
+
+- all primitives and their arrays
+- parcelable objects and their arrays
+- serializable objects
 
 This project is still at 0.1.0 version. More features will be added later on. Such as shared element transitions. :D
 

@@ -320,7 +320,7 @@ public final class ButterflyProcessor extends AbstractProcessor {
      * See if the extra type is valid and can be put on a bundle<br>
      * Stuff that can be put in bundle:
      * <ul>
-     * <li>BINDER</li>
+     * <li>Binder</li>
      * <li>Bundle</li>
      * <li>Byte, ByteArray</li>
      * <li>Char, CharArray</li>
