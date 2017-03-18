@@ -7,8 +7,6 @@ import android.widget.EditText;
 
 import com.yifan.butterfly.BActivity;
 import com.yifan.butterfly.Butterfly;
-import com.yifan.butterflyproject.entity.ParcelableObject;
-import com.yifan.butterflyproject.entity.SerializableObject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -44,8 +42,6 @@ public class MainActivity extends AppCompatActivity {
         Butterfly.getExtraActivity$$Helper()
                 .with_stringExtra(stringExtra.getText().toString())
                 .with_intExtra(Integer.parseInt(intExtra.getText().toString()))
-                .with_parcelableExtra(new ParcelableObject("Parcelable"))
-                .with_serializableExtra(new SerializableObject("Serializable"))
                 .start(this);
     }
 
