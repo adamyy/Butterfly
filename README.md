@@ -1,6 +1,8 @@
 # Butterfly
 An android library designed to make moving between activities easy
 
+![](https://travis-ci.org/adamyy/Butterfly.svg?branch=master)
+
 <3
 
 - [JavaPoet](https://github.com/square/javapoet)
@@ -18,7 +20,7 @@ intent.putExtra("someStringExtra", "hello world");
 startActivity(intent);
 ```
 
-Then in the `onCreate()` of the started Activity, to retrieve the extras:
+Then in the `onCreate()` of the started `Activity`, to retrieve the extras:
 
 ```java
 int i = getIntExtra("someIntExtra", 0);
@@ -29,7 +31,9 @@ Which looks kinda tedious. Also you don't really need your brain to write these 
 
 The purpose of Butterfly (I'm a big fan of [Butterknife](https://github.com/JakeWharton/butterknife), don't judge my naming skills) is to make your life easier in this process.
 
+
 ###Sample usage
+
 
 First annotate the `Activity` class with `@BActivity`, also annotate the 
 extra fields you want Butterfly to bind with `@BExtra`. 
@@ -38,18 +42,16 @@ extra fields you want Butterfly to bind with `@BExtra`.
 @BActivity
 public class ExtraActivity extends AppCompatActivity {
 
-	@BExtra(alias = "id")
-    int _intExtra;
-    
-	@BExtra(alias = "name")
-    String _stringExtra;
+    @BExtra(alias = "id") int _intExtra;
+    @BExtra(alias = "name") String _stringExtra;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-		...
+        //...
         Butterfly.bind(this);
     }
+    
 }
 ```
 
@@ -77,9 +79,7 @@ Currently supported extra types are:
 - parcelable objects and their arrays
 - serializable objects
 
-This project is still at 0.1.0 version. More features will be added later on. Such as shared element transitions. :D
-
-Also I didn't write enough tests yet. :(
+More features will be added later on. :D
 
 To use Butterfly, you need to add
 `butterfly-annotations`, `butterfly-api`, `butterfly-compiler` as modules to your app. And then in your app level gradle, put:
