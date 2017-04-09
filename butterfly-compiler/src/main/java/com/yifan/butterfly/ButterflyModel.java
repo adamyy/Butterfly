@@ -11,7 +11,7 @@ final class ButterflyModel {
      * Elements annotated with BActivity
      */
     public TypeElement _Activity;
-    public String _ActivityAlias;
+    public boolean _Result;
 
     /**
      * Elements annotated with BExtras
@@ -29,12 +29,12 @@ final class ButterflyModel {
         StringBuilder builder = new StringBuilder();
         builder.append("_Activity: ")
                 .append(_Activity.toString())
-                .append("\n_ActivityAlias: ")
-                .append(_ActivityAlias)
+                .append("\n_Result: ")
+                .append(_Result)
                 .append("\n");
 
         builder.append("\nExtraElements: \n");
-        for (VariableElement extra: _ExtraElement) {
+        for (VariableElement extra : _ExtraElement) {
             builder.append(extra.getSimpleName())
                     .append(": ")
                     .append(extra.asType().toString())
@@ -42,7 +42,7 @@ final class ButterflyModel {
         }
 
         builder.append("\nExtraIds: \n");
-        for (String extraId: _ExtraAlias) {
+        for (String extraId : _ExtraAlias) {
             builder.append(extraId)
                     .append("\n");
         }

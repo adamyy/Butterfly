@@ -1,5 +1,6 @@
 package com.yifan.butterflyproject;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.Button;
@@ -13,7 +14,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.OnTextChanged;
 
-@BActivity(alias = "MainActivityAlias")
+@BActivity()
 public class MainActivity extends AppCompatActivity {
 
     @BindView(R.id.sample_string_extra)
@@ -39,10 +40,12 @@ public class MainActivity extends AppCompatActivity {
 
     @OnClick(R.id.extra_activity_button)
     public void launchExtraActivity() {
-        Butterfly.getExtraActivity$$Helper()
-                .with_stringExtra(stringExtra.getText().toString())
+        Butterfly.getExtraActivity$$Helper(this)
                 .with_intExtra(Integer.parseInt(intExtra.getText().toString()))
-                .start(this);
+                .with_stringExtra(stringExtra.getText().toString())
+                .withAnim(R.anim.activity_slide_left_in, R.anim.activity_slide_left_out)
+                .withFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                .start();
     }
 
 }

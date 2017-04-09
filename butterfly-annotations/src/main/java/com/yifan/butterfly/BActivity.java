@@ -13,8 +13,7 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 public @interface BActivity {
     /**
-     * Optional, by default it is the class name
-     * @return Alias for activity
+     * If the started activity has results (i.e., can be started with startActivityForResult())
      */
-    String alias() default "";
+    boolean result() default false;
 }
