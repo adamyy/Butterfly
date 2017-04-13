@@ -1,12 +1,13 @@
 package com.yifan.butterflyproject;
 
+import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
+import android.support.design.widget.TextInputEditText;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.View;
-import android.widget.TextView;
+import android.util.Log;
+import android.view.MenuItem;
+import android.widget.EditText;
 
 import com.yifan.butterfly.BActivity;
 import com.yifan.butterfly.BExtra;
@@ -17,7 +18,7 @@ import com.yifan.butterflyproject.entity.SerializableObject;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-@BActivity
+@BActivity(hasResult = true)
 public class ExtraActivity extends AppCompatActivity {
 
     private static final String TAG = ExtraActivity.class.getSimpleName();
@@ -76,10 +77,13 @@ public class ExtraActivity extends AppCompatActivity {
     ParcelableObject[] _parcelableArrayExtra;
 
     @BindView(R.id.string_extra)
-    TextView stringText;
+    TextInputEditText stringText;
 
-    @BindView(R.id.int_extra_text_view)
-    TextView intText;
+    @BindView(R.id.int_extra)
+    TextInputEditText intText;
+
+    @BindView(R.id.activity_extra_result)
+    EditText resultInput;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,16 +91,8 @@ public class ExtraActivity extends AppCompatActivity {
         setContentView(R.layout.activity_extra);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
-
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
 
         ButterKnife.bind(this);
         Butterfly.bind(this);
@@ -105,4 +101,24 @@ public class ExtraActivity extends AppCompatActivity {
         intText.setText(String.valueOf(_intExtra));
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                onBackPressed();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (resultInput.getText() != null) {
+            Log.d(TAG, resultInput.getText().toString());
+            setResult(RESULT_OK, new Intent().putExtra("result", resultInput.getText().toString()));
+            finish();
+        }
+        super.onBackPressed();
+    }
 }

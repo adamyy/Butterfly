@@ -1,5 +1,6 @@
 package com.yifan.butterfly;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -8,16 +9,14 @@ import android.support.v4.app.ActivityOptionsCompat;
 
 public abstract class ActivityHelper {
 
-    protected Bundle _extras;
     protected Bundle _options;
     protected Intent _intent;
 
-    protected final Context _context;
+    protected int _enterAnim = 0;
+    protected int _exitAnim = 0;
 
-    public ActivityHelper(Context from) {
-        _context = from;
+    public ActivityHelper() {
         _intent = new Intent();
-        _extras = new Bundle();
         _options = new Bundle();
     }
 
@@ -27,12 +26,17 @@ public abstract class ActivityHelper {
     }
 
     public ActivityHelper withAnim(@AnimRes int enterAnim, @AnimRes int exitAnim){
-        _options.putAll(ActivityOptionsCompat.makeCustomAnimation(_context, enterAnim, exitAnim).toBundle());
+        _enterAnim = enterAnim;
+        _exitAnim = exitAnim;
         return this;
     }
 
-    public abstract void start();
+    public void start(Context context){
+        _options.putAll(ActivityOptionsCompat.makeCustomAnimation(context, _enterAnim, _exitAnim).toBundle());
+    }
 
-    public abstract void startForResult(int requestCode);
+    public void startForResult(Activity activity, int requestCode){
+        _options.putAll(ActivityOptionsCompat.makeCustomAnimation(activity, _enterAnim, _exitAnim).toBundle());
+    }
 
 }

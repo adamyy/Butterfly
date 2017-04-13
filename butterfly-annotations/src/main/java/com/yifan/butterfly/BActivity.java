@@ -15,5 +15,5 @@ public @interface BActivity {
     /**
      * If the started activity has results (i.e., can be started with startActivityForResult())
      */
-    boolean result() default false;
+    boolean hasResult() default false;
 }
