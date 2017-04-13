@@ -43,6 +43,7 @@ import static com.yifan.butterfly.C.CONTEXT;
 import static com.yifan.butterfly.C.HELPER_CLASS_SUFFIX;
 import static com.yifan.butterfly.C.HELPER_PACKAGE_NAME;
 import static com.yifan.butterfly.C.BUTTERFLY_PACKAGE_NAME;
+import static com.yifan.butterfly.C.INTENT;
 import static javax.lang.model.element.ElementKind.CLASS;
 import static javax.lang.model.element.Modifier.FINAL;
 import static javax.lang.model.element.Modifier.PRIVATE;
@@ -156,7 +157,7 @@ public final class ButterflyProcessor extends AbstractProcessor {
                     .addAnnotation(Override.class)
                     .addModifiers(PUBLIC)
                     .returns(helperName)
-                    .addJavadoc("Set activity flags")
+                    .addJavadoc("Equivalent to intent.setFlags()")
                     .addParameter(TypeName.INT, "flags")
                     .addStatement("super.withFlags(flags)")
                     .addStatement("return this");
@@ -172,6 +173,17 @@ public final class ButterflyProcessor extends AbstractProcessor {
                     .addStatement("super.withAnim(enterRes, exitRes)")
                     .addStatement("return this");
             helper.addMethod(withAnim.build());
+
+            MethodSpec.Builder asIntent = MethodSpec.methodBuilder("asIntent")
+                    .addAnnotation(Override.class)
+                    .addModifiers(PUBLIC)
+                    .returns(INTENT)
+                    .addJavadoc("Return this as intent")
+                    .addParameter(CONTEXT, "context")
+                    .addStatement("_intent.setComponent(new $T(context, $T.class))",
+                            COMPONENT_NAME, activityClassName)
+                    .addStatement("return _intent");
+            helper.addMethod(asIntent.build());
 
             // generate helper.start methods
             MethodSpec.Builder start = MethodSpec.methodBuilder("start")
@@ -214,7 +226,7 @@ public final class ButterflyProcessor extends AbstractProcessor {
             }
 
             // generate getHelper method for Butterfly class
-            MethodSpec.Builder getHelper = MethodSpec.methodBuilder("get" + helperName.simpleName())
+            MethodSpec.Builder getHelper = MethodSpec.methodBuilder("get" + helperName.simpleName().replace("$$", ""))
                     .addModifiers(PUBLIC, STATIC)
                     .returns(helperName)
                     .addStatement("return new $T()", helperName);

@@ -19,7 +19,7 @@ public abstract class ActivityHelper {
         _intent = new Intent();
         _options = new Bundle();
     }
-
+    
     public ActivityHelper withFlags(int flags){
         _intent.setFlags(flags);
         return this;
@@ -30,6 +30,8 @@ public abstract class ActivityHelper {
         _exitAnim = exitAnim;
         return this;
     }
+
+    public abstract Intent asIntent(Context context);
 
     public void start(Context context){
         _options.putAll(ActivityOptionsCompat.makeCustomAnimation(context, _enterAnim, _exitAnim).toBundle());

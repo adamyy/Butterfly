@@ -15,7 +15,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.OnTextChanged;
 
-@BActivity()
+@BActivity
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
@@ -50,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
 
     @OnClick(R.id.button_extra_activity)
     public void launchExtraActivity() {
-        Butterfly.getExtraActivity$$Helper()
+        Butterfly.getExtraActivityHelper()
                 .with_intExtra(Integer.parseInt(intExtra.getText().toString()))
                 .with_stringExtra(stringExtra.getText().toString())
                 .withAnim(R.anim.activity_slide_left_in, R.anim.activity_slide_left_out)
@@ -59,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
 
     @OnClick(R.id.button_extra_activity_for_result)
     public void launchExtraActivityForResult() {
-        Butterfly.getExtraActivity$$Helper()
+        Butterfly.getExtraActivityHelper()
                 .with_intExtra(Integer.parseInt(intExtra.getText().toString()))
                 .with_stringExtra(stringExtra.getText().toString())
                 .withAnim(R.anim.activity_slide_left_in, R.anim.activity_slide_left_out)
