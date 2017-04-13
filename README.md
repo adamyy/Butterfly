@@ -62,7 +62,7 @@ When you wish to launch ExtraActivity with these extras, you do something like t
 ```java
 public class MainActivity extends AppCompatActivity {
     public void launchExtraActivity() {
-        Butterfly.getExtraActivity$$Helper()
+        Butterfly.getExtraActivityHelper()
                 .withname("ENIVEL RETEP") // Notice the setter name is associated with alias given in @BExtra
                 .withid(42069)
                 .start(this);
@@ -78,8 +78,6 @@ Currently supported extra types are:
 - all primitives and their arrays
 - parcelable objects and their arrays
 - serializable objects
-
-More features will be added later on. :D
 
 To use Butterfly, you need to add
 `butterfly-annotations`, `butterfly-api`, `butterfly-compiler` as modules to your app. And then in your app level gradle, put:
