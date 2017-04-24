@@ -26,5 +26,6 @@ android {
 }
 
 dependencies {
+    compile project(':butterfly-compiler')
     compile 'com.android.support:appcompat-v7:25.1.0'
 }
