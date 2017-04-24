@@ -36,6 +36,7 @@ import javax.tools.Diagnostic;
 import static com.yifan.butterfly.C.ACTIVITY;
 import static com.yifan.butterfly.C.ACTIVITY_HELPER;
 import static com.yifan.butterfly.C.BINDER_CLASS_SUFFIX;
+import static com.yifan.butterfly.C.BUNDLE;
 import static com.yifan.butterfly.C.BUTTERFLY;
 import static com.yifan.butterfly.C.BINDER;
 import static com.yifan.butterfly.C.COMPONENT_NAME;
@@ -173,6 +174,16 @@ public final class ButterflyProcessor extends AbstractProcessor {
                     .addStatement("super.withAnim(enterRes, exitRes)")
                     .addStatement("return this");
             helper.addMethod(withAnim.build());
+
+            MethodSpec.Builder withOptions = MethodSpec.methodBuilder("withOptions")
+                    .addAnnotation(Override.class)
+                    .addModifiers(PUBLIC)
+                    .returns(helperName)
+                    .addJavadoc("start options")
+                    .addParameter(BUNDLE, "options")
+                    .addStatement("super.withOptions(options)")
+                    .addStatement("return this");
+            helper.addMethod(withOptions.build());
 
             MethodSpec.Builder asIntent = MethodSpec.methodBuilder("asIntent")
                     .addAnnotation(Override.class)
