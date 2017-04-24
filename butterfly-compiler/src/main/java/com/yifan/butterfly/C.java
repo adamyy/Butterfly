@@ -26,4 +26,6 @@ final class C {
     public static final ClassName BUNDLE = ClassName.get("android.os", "Bundle");
     public static final ClassName COMPONENT_NAME = ClassName.get("android.content", "ComponentName");
 
+    public static final ClassName ILLEGALSTATE_EXCEPTION = ClassName.get("java.lang", "IllegalStateException");
+
 }

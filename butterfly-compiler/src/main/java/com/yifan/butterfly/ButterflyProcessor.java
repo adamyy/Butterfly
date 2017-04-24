@@ -43,6 +43,7 @@ import static com.yifan.butterfly.C.CONTEXT;
 import static com.yifan.butterfly.C.HELPER_CLASS_SUFFIX;
 import static com.yifan.butterfly.C.HELPER_PACKAGE_NAME;
 import static com.yifan.butterfly.C.BUTTERFLY_PACKAGE_NAME;
+import static com.yifan.butterfly.C.INTENT;
 import static javax.lang.model.element.ElementKind.CLASS;
 import static javax.lang.model.element.Modifier.FINAL;
 import static javax.lang.model.element.Modifier.PRIVATE;
@@ -102,12 +103,11 @@ public final class ButterflyProcessor extends AbstractProcessor {
             if (!isValidActivity(activity)) return false;
 
             BActivity annotation = activity.getAnnotation(BActivity.class);
-            String activityId = activity.getSimpleName().toString();
-            String activityAlias = !annotation.alias().isEmpty() ? annotation.alias() : activityId;
 
             ButterflyModel model = new ButterflyModel();
             model._Activity = (TypeElement) activity;
-            model._ActivityAlias = activityAlias;
+            model._Result = annotation.hasResult();
+
             List<? extends Element> enclosedElements = activity.getEnclosedElements();
             for (Element element : enclosedElements) {
                 BExtra extra = element.getAnnotation(BExtra.class);
@@ -125,9 +125,9 @@ public final class ButterflyProcessor extends AbstractProcessor {
         // generate helper
         for (ButterflyModel model : activityModels) {
             TypeElement activity = model._Activity;
-            String activityAlias = model._ActivityAlias;
+            boolean requireStartForResult = model._Result;
             ClassName activityClassName = (ClassName) ClassName.get(activity.asType());
-            ClassName helperName = ClassName.get(HELPER_PACKAGE_NAME, activityAlias + HELPER_CLASS_SUFFIX);
+            ClassName helperName = ClassName.get(HELPER_PACKAGE_NAME, activity.getSimpleName().toString() + HELPER_CLASS_SUFFIX);
             String packageName = _elementUtils.getPackageOf(activity).getQualifiedName().toString();
 
             // Helper class definition
@@ -149,45 +149,70 @@ public final class ButterflyProcessor extends AbstractProcessor {
                         .addJavadoc("Set the " + extraAlias + " extra")
                         .addParameter(extraType, extraAlias)
                         .addStatement("_intent.putExtra(\"$L\", $L)", extraId, extraAlias)
-//                        .addStatement("this.$L = $L", extraId, extraAlias)
                         .addStatement("return this");
                 helper.addMethod(withExtra.build());
-
-                // no need for saving extra as a field honestly
-                // FieldSpec.Builder extraField = FieldSpec.builder(extraType, extraId, PRIVATE);
-                // helper.addField(extraField.build());
             }
 
-            // generate helper.start methods
-            MethodSpec.Builder start_context = MethodSpec.methodBuilder("start")
+            MethodSpec.Builder withFlags = MethodSpec.methodBuilder("withFlags")
                     .addAnnotation(Override.class)
                     .addModifiers(PUBLIC)
-                    .addParameter(CONTEXT, "from")
-                    .addStatement("_intent.setComponent(new $T(from, $T.class))",
-                            COMPONENT_NAME, activityClassName)
-                    .addStatement("from.startActivity(_intent, _options)");
+                    .returns(helperName)
+                    .addJavadoc("Equivalent to intent.setFlags()")
+                    .addParameter(TypeName.INT, "flags")
+                    .addStatement("super.withFlags(flags)")
+                    .addStatement("return this");
+            helper.addMethod(withFlags.build());
 
-            MethodSpec.Builder start_activity = MethodSpec.methodBuilder("start")
+            MethodSpec.Builder withAnim = MethodSpec.methodBuilder("withAnim")
                     .addAnnotation(Override.class)
                     .addModifiers(PUBLIC)
-                    .addParameter(ACTIVITY, "from")
-                    .addStatement("_intent.setComponent(new $T(from, $T.class))",
+                    .returns(helperName)
+                    .addJavadoc("Set enter and exit animation")
+                    .addParameter(TypeName.INT, "enterRes")
+                    .addParameter(TypeName.INT, "exitRes")
+                    .addStatement("super.withAnim(enterRes, exitRes)")
+                    .addStatement("return this");
+            helper.addMethod(withAnim.build());
+
+            MethodSpec.Builder asIntent = MethodSpec.methodBuilder("asIntent")
+                    .addAnnotation(Override.class)
+                    .addModifiers(PUBLIC)
+                    .returns(INTENT)
+                    .addJavadoc("Return this as intent")
+                    .addParameter(CONTEXT, "context")
+                    .addStatement("_intent.setComponent(new $T(context, $T.class))",
                             COMPONENT_NAME, activityClassName)
-                    .addStatement("from.startActivity(_intent, _options)");
+                    .addStatement("return _intent");
+            helper.addMethod(asIntent.build());
+
+            // generate helper.start methods
+            MethodSpec.Builder start = MethodSpec.methodBuilder("start")
+                    .addAnnotation(Override.class)
+                    .addModifiers(PUBLIC)
+                    .addParameter(CONTEXT, "context")
+                    .addStatement("super.start(context)")
+                    .addStatement("_intent.setComponent(new $T(context, $T.class))",
+                            COMPONENT_NAME, activityClassName)
+                    .addStatement("context.startActivity(_intent, _options)");
+            helper.addMethod(start.build());
 
             // emit helper.startForResult method
             MethodSpec.Builder start_for_result = MethodSpec.methodBuilder("startForResult")
                     .addAnnotation(Override.class)
                     .addModifiers(PUBLIC)
-                    .addParameter(ACTIVITY, "from")
+                    .addParameter(ACTIVITY, "activity")
                     .addParameter(TypeName.INT, "requestCode")
-                    .addStatement("_intent.setComponent(new $T(from, $T.class))",
+                    .addStatement("super.startForResult(activity, requestCode)")
+                    .addStatement("_intent.setComponent(new $T(activity, $T.class))",
                             COMPONENT_NAME, activityClassName)
-                    .addStatement("from.startActivityForResult(_intent, requestCode, _options)");
+                    .addStatement("activity.startActivityForResult(_intent, requestCode, _options)", ACTIVITY);
 
+            if (!requireStartForResult) {
+                start_for_result
+                        .addAnnotation(Deprecated.class)
+                        .addJavadoc("You did not specify that this Activity can has results. Invoking this method with Non-Activity context will throw an Runtime Exception.");
+            }
             helper.addMethod(start_for_result.build());
-            helper.addMethod(start_context.build());
-            helper.addMethod(start_activity.build());
 
             // for debugging
             helper.addJavadoc("ButterflyModel: \n").addJavadoc(model.toString());
@@ -201,7 +226,7 @@ public final class ButterflyProcessor extends AbstractProcessor {
             }
 
             // generate getHelper method for Butterfly class
-            MethodSpec.Builder getHelper = MethodSpec.methodBuilder("get" + helperName.simpleName())
+            MethodSpec.Builder getHelper = MethodSpec.methodBuilder("get" + helperName.simpleName().replace("$$", ""))
                     .addModifiers(PUBLIC, STATIC)
                     .returns(helperName)
                     .addStatement("return new $T()", helperName);
@@ -320,7 +345,7 @@ public final class ButterflyProcessor extends AbstractProcessor {
      * See if the extra type is valid and can be put on a bundle<br>
      * Stuff that can be put in bundle:
      * <ul>
-     * <li>BINDER</li>
+     * <li>Binder</li>
      * <li>Bundle</li>
      * <li>Byte, ByteArray</li>
      * <li>Char, CharArray</li>

@@ -15,11 +15,6 @@ public class ParcelableObject implements Parcelable {
         this.id = id;
     }
 
-    // Parcelling part
-    public ParcelableObject(Parcel in) {
-        id = in.readString();
-    }
-
     @Override
     public int describeContents() {
         return 0;
@@ -27,17 +22,22 @@ public class ParcelableObject implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(id);
+        dest.writeString(this.id);
     }
 
-    public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
-        public ParcelableObject createFromParcel(Parcel in) {
-            return new ParcelableObject(in);
+    protected ParcelableObject(Parcel in) {
+        this.id = in.readString();
+    }
+
+    public static final Creator<ParcelableObject> CREATOR = new Creator<ParcelableObject>() {
+        @Override
+        public ParcelableObject createFromParcel(Parcel source) {
+            return new ParcelableObject(source);
         }
 
+        @Override
         public ParcelableObject[] newArray(int size) {
             return new ParcelableObject[size];
         }
     };
-
 }
