@@ -1,1 +1,1 @@
-include ':app', ':butterfly-compiler', ':butterfly-api'
+include ':app', ':butterfly-compiler', ':butterfly-api', ':butterfly-annotations'
