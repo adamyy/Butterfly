@@ -25,7 +25,6 @@ android {
 
 dependencies {
     compile project(':butterfly-api')
-    compile project(':butterfly-annotations')
     annotationProcessor project(':butterfly-compiler')
 
     compile 'com.jakewharton:butterknife:8.5.1'
