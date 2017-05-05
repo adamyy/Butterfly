@@ -33,17 +33,7 @@ import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 import javax.tools.Diagnostic;
 
-import static com.yifan.butterfly.C.ACTIVITY;
-import static com.yifan.butterfly.C.ACTIVITY_HELPER;
-import static com.yifan.butterfly.C.BINDER_CLASS_SUFFIX;
-import static com.yifan.butterfly.C.BUTTERFLY;
-import static com.yifan.butterfly.C.BINDER;
-import static com.yifan.butterfly.C.COMPONENT_NAME;
-import static com.yifan.butterfly.C.CONTEXT;
-import static com.yifan.butterfly.C.HELPER_CLASS_SUFFIX;
-import static com.yifan.butterfly.C.HELPER_PACKAGE_NAME;
-import static com.yifan.butterfly.C.BUTTERFLY_PACKAGE_NAME;
-import static com.yifan.butterfly.C.INTENT;
+import static com.yifan.butterfly.C.*;
 import static javax.lang.model.element.ElementKind.CLASS;
 import static javax.lang.model.element.Modifier.FINAL;
 import static javax.lang.model.element.Modifier.PRIVATE;
