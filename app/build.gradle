@@ -24,7 +24,6 @@ android {
 }
 
 dependencies {
-    compile project(':butterfly-annotations')
     compile project(':butterfly-api')
     annotationProcessor project(':butterfly-compiler')
 
