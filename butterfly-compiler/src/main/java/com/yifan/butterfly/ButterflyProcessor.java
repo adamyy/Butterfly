@@ -34,6 +34,7 @@ import javax.lang.model.util.Types;
 import javax.tools.Diagnostic;
 
 import static com.yifan.butterfly.C.*;
+
 import static javax.lang.model.element.ElementKind.CLASS;
 import static javax.lang.model.element.Modifier.FINAL;
 import static javax.lang.model.element.Modifier.PRIVATE;
@@ -163,6 +164,16 @@ public final class ButterflyProcessor extends AbstractProcessor {
                     .addStatement("super.withAnim(enterRes, exitRes)")
                     .addStatement("return this");
             helper.addMethod(withAnim.build());
+
+            MethodSpec.Builder withOptions = MethodSpec.methodBuilder("withOptions")
+                    .addAnnotation(Override.class)
+                    .addModifiers(PUBLIC)
+                    .returns(helperName)
+                    .addJavadoc("start options")
+                    .addParameter(BUNDLE, "options")
+                    .addStatement("super.withOptions(options)")
+                    .addStatement("return this");
+            helper.addMethod(withOptions.build());
 
             MethodSpec.Builder asIntent = MethodSpec.methodBuilder("asIntent")
                     .addAnnotation(Override.class)

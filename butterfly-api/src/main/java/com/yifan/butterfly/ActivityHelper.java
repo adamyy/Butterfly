@@ -31,6 +31,11 @@ public abstract class ActivityHelper {
         return this;
     }
 
+    public ActivityHelper withOptions(Bundle options){
+        _options.putAll(options);
+        return this;
+    }
+
     public abstract Intent asIntent(Context context);
 
     public void start(Context context){
