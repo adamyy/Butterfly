@@ -186,34 +186,28 @@ public final class ButterflyProcessor extends AbstractProcessor {
                     .addStatement("return _intent");
             helper.addMethod(asIntent.build());
 
-            // generate helper.start methods
-            MethodSpec.Builder start = MethodSpec.methodBuilder("start")
-                    .addAnnotation(Override.class)
+            // generate helper.go methods
+            MethodSpec.Builder go = MethodSpec.methodBuilder("go")
                     .addModifiers(PUBLIC)
                     .addParameter(CONTEXT, "context")
-                    .addStatement("super.start(context)")
+                    .addStatement("beforeStart(context)")
                     .addStatement("_intent.setComponent(new $T(context, $T.class))",
                             COMPONENT_NAME, activityClassName)
                     .addStatement("context.startActivity(_intent, _options)");
-            helper.addMethod(start.build());
+            helper.addMethod(go.build());
 
-            // emit helper.startForResult method
-            MethodSpec.Builder start_for_result = MethodSpec.methodBuilder("startForResult")
-                    .addAnnotation(Override.class)
-                    .addModifiers(PUBLIC)
-                    .addParameter(ACTIVITY, "activity")
-                    .addParameter(TypeName.INT, "requestCode")
-                    .addStatement("super.startForResult(activity, requestCode)")
-                    .addStatement("_intent.setComponent(new $T(activity, $T.class))",
-                            COMPONENT_NAME, activityClassName)
-                    .addStatement("activity.startActivityForResult(_intent, requestCode, _options)", ACTIVITY);
-
-            if (!requireStartForResult) {
-                start_for_result
-                        .addAnnotation(Deprecated.class)
-                        .addJavadoc("You did not specify that this Activity can has results. Invoking this method with Non-Activity context will throw an Runtime Exception.");
+            // emit helper.goForResult method
+            if (requireStartForResult) {
+                MethodSpec.Builder goForResult = MethodSpec.methodBuilder("goForResult")
+                        .addModifiers(PUBLIC)
+                        .addParameter(ACTIVITY, "activity")
+                        .addParameter(TypeName.INT, "requestCode")
+                        .addStatement("beforeStartForResult(activity, requestCode)")
+                        .addStatement("_intent.setComponent(new $T(activity, $T.class))",
+                                COMPONENT_NAME, activityClassName)
+                        .addStatement("activity.startActivityForResult(_intent, requestCode, _options)", ACTIVITY);
+                helper.addMethod(goForResult.build());
             }
-            helper.addMethod(start_for_result.build());
 
             // for debugging
             helper.addJavadoc("ButterflyModel: \n").addJavadoc(model.toString());
@@ -227,7 +221,7 @@ public final class ButterflyProcessor extends AbstractProcessor {
             }
 
             // generate getHelper method for Butterfly class
-            MethodSpec.Builder getHelper = MethodSpec.methodBuilder("get" + helperName.simpleName().replace("$$", ""))
+            MethodSpec.Builder getHelper = MethodSpec.methodBuilder("to" + model._Activity.getSimpleName())
                     .addModifiers(PUBLIC, STATIC)
                     .returns(helperName)
                     .addStatement("return new $T()", helperName);

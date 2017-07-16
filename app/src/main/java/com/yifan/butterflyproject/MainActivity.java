@@ -50,20 +50,20 @@ public class MainActivity extends AppCompatActivity {
 
     @OnClick(R.id.button_extra_activity)
     public void launchExtraActivity() {
-        Butterfly.getExtraActivityHelper()
+        Butterfly.toExtraActivity()
                 .with_intExtra(Integer.parseInt(intExtra.getText().toString()))
                 .with_stringExtra(stringExtra.getText().toString())
                 .withAnim(R.anim.activity_slide_left_in, R.anim.activity_slide_left_out)
-                .start(this);
+                .go(this);
     }
 
     @OnClick(R.id.button_extra_activity_for_result)
     public void launchExtraActivityForResult() {
-        Butterfly.getExtraActivityHelper()
+        Butterfly.toExtraActivity()
                 .with_intExtra(Integer.parseInt(intExtra.getText().toString()))
                 .with_stringExtra(stringExtra.getText().toString())
                 .withAnim(R.anim.activity_slide_left_in, R.anim.activity_slide_left_out)
-                .startForResult(this, 123);
+                .goForResult(this, 123);
     }
 
     @Override
