@@ -32,8 +32,7 @@ Which looks kinda tedious. Also you don't really need your brain to write these 
 The purpose of Butterfly (I'm a big fan of [Butterknife](https://github.com/JakeWharton/butterknife), don't judge my naming skills) is to make your life easier in this process.
 
 
-###Sample usage
-
+### Sample usage
 
 First annotate the `Activity` class with `@BActivity`, also annotate the 
 extra fields you want Butterfly to bind with `@BExtra`. 
@@ -62,10 +61,10 @@ When you wish to launch ExtraActivity with these extras, you do something like t
 ```java
 public class MainActivity extends AppCompatActivity {
     public void launchExtraActivity() {
-        Butterfly.getExtraActivityHelper()
+        Butterfly.toExtraActivity()
                 .withname("ENIVEL RETEP") // Notice the setter name is associated with alias given in @BExtra
                 .withid(42069)
-                .start(this);
+                .go(this);
     }
 }
 ```
@@ -79,8 +78,21 @@ Currently supported extra types are:
 - parcelable objects and their arrays
 - serializable objects
 
-To use Butterfly, you need to add
-`butterfly-annotations`, `butterfly-api`, `butterfly-compiler` as gradle modules to your app. And then in your app level `build.gradle`, put:
+### Download
+
+It is recommended that you add Butterfly as a git submodule:
+
+- `git submodule add git@github.com:adamyy/Butterfly.git <some repository, e.g. lib/butterfly>`
+
+Then in the directory where you cloned the Butterfly repo, checkout the tag/release you want:
+
+- `git checkout 0.1.0`
+
+Then you can import `butterfly-annotations`, `butterfly-api`, `butterfly-compiler` as library modules in Android Studio.
+
+You can see this [stack overflow question](https://stackoverflow.com/questions/27717728/android-studio-how-to-add-my-own-git-repository-as-a-library-projectsub-module) for troubleshooting.
+
+Then you can add Butterfly as your app dependency in your app level `build.gradle`:
 
 ```
 dependencies {
@@ -90,6 +102,8 @@ dependencies {
 	...
 }
 ```
+
+And if you are using Kotlin you can do `kapt project(':butterfly-compiler')`
 
 You might need to configure Android Studio to enable annotation processing.
 
