@@ -80,7 +80,7 @@ Currently supported extra types are:
 - serializable objects
 
 To use Butterfly, you need to add
-`butterfly-annotations`, `butterfly-api`, `butterfly-compiler` as modules to your app. And then in your app level gradle, put:
+`butterfly-annotations`, `butterfly-api`, `butterfly-compiler` as gradle modules to your app. And then in your app level `build.gradle`, put:
 
 ```
 dependencies {
