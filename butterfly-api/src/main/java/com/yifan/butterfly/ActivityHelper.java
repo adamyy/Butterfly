@@ -38,11 +38,11 @@ public abstract class ActivityHelper {
 
     public abstract Intent asIntent(Context context);
 
-    public void start(Context context){
+    protected void beforeStart(Context context){
         _options.putAll(ActivityOptionsCompat.makeCustomAnimation(context, _enterAnim, _exitAnim).toBundle());
     }
 
-    public void startForResult(Activity activity, int requestCode){
+    protected void beforeStartForResult(Activity activity, int requestCode){
         _options.putAll(ActivityOptionsCompat.makeCustomAnimation(activity, _enterAnim, _exitAnim).toBundle());
     }
 
