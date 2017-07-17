@@ -12,5 +12,5 @@ public @interface BExtra {
      * Optional, by default it is the identifier of the variable
      * @return The alias for your extra
      */
-    String alias() default "";
+    String value() default "";
 }
