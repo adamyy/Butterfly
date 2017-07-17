@@ -51,8 +51,8 @@ public class MainActivity extends AppCompatActivity {
     @OnClick(R.id.button_extra_activity)
     public void launchExtraActivity() {
         Butterfly.toExtraActivity()
-                .with_intExtra(Integer.parseInt(intExtra.getText().toString()))
-                .with_stringExtra(stringExtra.getText().toString())
+                .withId(Integer.parseInt(intExtra.getText().toString()))
+                .withName(stringExtra.getText().toString())
                 .withAnim(R.anim.activity_slide_left_in, R.anim.activity_slide_left_out)
                 .go(this);
     }
@@ -60,8 +60,8 @@ public class MainActivity extends AppCompatActivity {
     @OnClick(R.id.button_extra_activity_for_result)
     public void launchExtraActivityForResult() {
         Butterfly.toExtraActivity()
-                .with_intExtra(Integer.parseInt(intExtra.getText().toString()))
-                .with_stringExtra(stringExtra.getText().toString())
+                .withId(Integer.parseInt(intExtra.getText().toString()))
+                .withName(stringExtra.getText().toString())
                 .withAnim(R.anim.activity_slide_left_in, R.anim.activity_slide_left_out)
                 .goForResult(this, 123);
     }
