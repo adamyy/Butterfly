@@ -43,7 +43,7 @@ public class ExtraActivity extends AppCompatActivity {
     @BExtra
     short[] _shortArrayExtra;
 
-    @BExtra(alias = "id")
+    @BExtra("id")
     int _intExtra;
     @BExtra
     int[] _intArrayExtra;
@@ -63,7 +63,7 @@ public class ExtraActivity extends AppCompatActivity {
     @BExtra
     long[] _longArrayExtra;
 
-    @BExtra(alias = "name")
+    @BExtra("name")
     String _stringExtra;
     @BExtra
     String[] _stringArrayExtra;

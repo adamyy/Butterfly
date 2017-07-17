@@ -104,7 +104,7 @@ public final class ButterflyProcessor extends AbstractProcessor {
                 BExtra extra = element.getAnnotation(BExtra.class);
                 if (extra != null) {
                     if (!isValidExtra(element)) return false;
-                    String extraAlias = extra.alias().isEmpty() ? element.getSimpleName().toString() : extra.alias();
+                    String extraAlias = extra.value().isEmpty() ? element.getSimpleName().toString() : extra.value();
                     model._ExtraElement.add((VariableElement) element);
                     model._ExtraAlias.add(extraAlias);
                 }
