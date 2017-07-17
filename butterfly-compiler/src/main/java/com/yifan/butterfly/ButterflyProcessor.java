@@ -134,7 +134,7 @@ public final class ButterflyProcessor extends AbstractProcessor {
                 String extraId = extra.getSimpleName().toString();
                 TypeName extraType = TypeName.get(extra.asType());
 
-                MethodSpec.Builder withExtra = MethodSpec.methodBuilder("with" + extraAlias)
+                MethodSpec.Builder withExtra = MethodSpec.methodBuilder(getSnakeCaseWithExtraMethodName(extraAlias))
                         .returns(helperName)
                         .addModifiers(PUBLIC)
                         .addJavadoc("Set the " + extraAlias + " extra")
@@ -502,6 +502,15 @@ public final class ButterflyProcessor extends AbstractProcessor {
         simpleName.insert(0, "get");
         simpleName.append("Extra");
         return simpleName.toString();
+    }
+
+    private String getSnakeCaseWithExtraMethodName(String extraName) {
+        if (Character.isLowerCase(extraName.charAt(0))) {
+            char[] letters = extraName.toCharArray();
+            letters[0] = Character.toUpperCase(letters[0]);
+            extraName = String.copyValueOf(letters);
+        }
+        return "with" + extraName;
     }
 
 }
